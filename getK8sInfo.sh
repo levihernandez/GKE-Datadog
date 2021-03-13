@@ -45,6 +45,8 @@ helm repo update
 > Install the Datadog values.yaml
 helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey=${2} --set targetSystem=linux -n ${nsp}
 
+> Get Deployments in Datadog namespace
+kubectl get deployments -n ${nsp}
 
 > Get Datadog pods
 kubectl get pods -n ${nsp} | cut -f1 -d\" \" | grep -v \"NAME\"

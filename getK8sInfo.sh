@@ -45,11 +45,11 @@ helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.
 
 
 > Get Datadog pods
-kubectl get pods -n datadog | cut -f1 -d\" \" | grep -v \"NAME\"
+kubectl get pods -n ${nsp} | cut -f1 -d\" \" | grep -v \"NAME\"
 
 
 > Get the Datadog cluster agent pod
-kubectl get pods -n datadog | cut -f1 -d\" \" | grep -v \"NAME\" | grep \"datadog-cluster-agent\"
+kubectl get pods -n ${nsp} | cut -f1 -d\" \" | grep -v \"NAME\" | grep \"datadog-cluster-agent\"
 
 
 > Get the Datadog cluster agent status
@@ -69,6 +69,6 @@ kubectl describe pod <pod name> -n ${nsp} | grep 'Controlled By:'
 
 
 > Delete (at your discretion) the daemonset deployment versions
-kubectl delete daemonset <kubectl delete daemonset datadog-version -n datadog> -n ${nsp}
+kubectl delete daemonset <kubectl delete daemonset datadog-version -n ${nsp}
 """
 

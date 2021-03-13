@@ -17,3 +17,7 @@ cd ../
 SYNTAX: ./getK8sInfo.sh <namespace> "<dd-api-key>"
 ```
 * The script will collect the basic data from the K8s cluster as shown in the sample output [gke-getInfo.txt](gke-getInfo.txt)
+
+## Helm Install Datadog + Istio Integration
+
+`helm install <deployment-version> -f istio-dd-values.yaml  datadog/datadog --set datadog.apiKey=<dd-api-key> --set targetSystem=linux -n datadog`

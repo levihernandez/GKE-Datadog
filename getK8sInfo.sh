@@ -4,8 +4,9 @@
 nsp=${1}
 apikey=${2}
 declare -A arr
-arr+=( ["Kernel"]="uname -r" ["Kubectl"]="kubectl version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""kubectl get namespaces --show-labels""" ["Network-Policies"]="""kubectl get networkpolicies --all-namespaces""" )
 
+# Declare commands to execute and collect information from the cluster
+arr+=( ["Kernel"]="uname -r" ["Kubectl"]="kubectl version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""kubectl get namespaces --show-labels""" ["Network-Policies"]="""kubectl get networkpolicies --all-namespaces""" )
 
 for key in ${!arr[@]}; do
     echo  "======================================"

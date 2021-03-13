@@ -1,0 +1,107 @@
+======================================
+GET Kubectl info: 'kubectl version'
+======================================
+Client Version: version.Info{Major:"1", Minor:"20", GitVersion:"v1.20.4", GitCommit:"e87da0bd6e03ec3fea7933c4b5263d151aafd07c", GitTreeState:"clean", BuildDate:"2021-02-18T16:12:00Z", GoVersion:"go1.15.8", Compi
+ler:"gc", Platform:"linux/amd64"}
+Server Version: version.Info{Major:"1", Minor:"18+", GitVersion:"v1.18.12-gke.1210", GitCommit:"199a41188dc0ca5d6d95b1cc7e8ba96e05f9dd0a", GitTreeState:"clean", BuildDate:"2021-02-05T18:03:16Z", GoVersion:"go1.1
+3.15b4", Compiler:"gc", Platform:"linux/amd64"}
+
+======================================
+GET Network-Policies info: 'kubectl get networkpolicies --all-namespaces'
+======================================
+No resources found
+
+======================================
+GET Istio-Injections info: 'kubectl get namespaces --show-labels'
+======================================
+NAME              STATUS   AGE     LABELS
+datadog           Active   6h10m   <none>
+ddapps            Active   6h18m   <none>
+default           Active   6h30m   <none>
+istio-operator    Active   6h29m   addonmanager.kubernetes.io/mode=EnsureExists,istio-injection=disabled,k8s-app=istio
+istio-system      Active   6h29m   addonmanager.kubernetes.io/mode=Reconcile,istio-injection=disabled,k8s-app=istio
+kube-node-lease   Active   6h30m   <none>
+kube-public       Active   6h30m   <none>
+kube-system       Active   6h30m   <none>
+
+======================================
+GET OS info: 'cat /etc/os-release'
+======================================
+PRETTY_NAME="Debian GNU/Linux 10 (buster)"
+NAME="Debian GNU/Linux"
+VERSION_ID="10"
+VERSION="10 (buster)"
+VERSION_CODENAME=buster
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+
+======================================
+GET Helm info: 'helm version'
+======================================
+version.BuildInfo{Version:"v3.5.0", GitCommit:"******234343221", GitTreeState:"clean", GoVersion:"go1.15.6"}
+
+======================================
+GET Kernel info: 'uname -r'
+======================================
+5.4.89+
+
+======================================
+GET Istio info: 'istioctl version'
+======================================
+client version: 1.8.0
+control plane version: 1.6.11-gke.0-e0116fa25b8f544322722f412acfd9937fd6c1bc
+data plane version: 1.6.11-gke.0 (1 proxies)
+
+
+Common commands used during the implementation of Datadog K8s
+
+------------------------------------------------------------------
+WARNING: The following commands are reference points, please use
+discretion when running deletions.
+In some instances, removing the deployments first creates
+conflicts re-using the deployment versions when using helm install.
+If you proceed with the usage of the commands below, you agree that
+you understand their functionality:
+------------------------------------------------------------------
+
+> Create Datadog namespace:
+kubectl create namespace
+
+
+> Get the Datadog Helm Repo
+helm repo add datadog https://helm.datadoghq.com
+helm repo update
+
+
+> Install the Datadog values.yaml
+helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey= --set targetSystem=linux -n
+
+
+> Get Datadog pods
+kubectl get pods -n datadog | cut -f1 -d" " | grep -v "NAME"
+
+
+> Get the Datadog cluster agent pod
+kubectl get pods -n datadog | cut -f1 -d" " | grep -v "NAME" | grep "datadog-cluster-agent"
+
+
+> Get the Datadog cluster agent status
+kubectl exec -it <datadog-cluster-agent pod> datadog-cluster-agent status -n
+
+
+> To send files to support, open a case first and get the <CASE_ID> (numeric value), run a flare collection
+kubectl exec <datadog-cluster-agent pod> -it datadog-cluster-agent flare <CASE_ID>
+
+
+> To reset, clean up everything for the Datadog namespace (please validate that the following will not damage your configs, cluster, system)
+kubectl delete replicasets,subscriptions,deployments,jobs,services,pods --all -n
+
+
+> Identify the daemonsets that respawn Pods
+kubectl describe pod <pod name> -n  | grep 'Controlled By:'
+
+
+> Delete (at your discretion) the daemonset deployment versions
+kubectl delete daemonset <kubectl delete daemonset datadog-version -n datadog> -n

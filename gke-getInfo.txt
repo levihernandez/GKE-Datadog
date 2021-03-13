@@ -76,7 +76,7 @@ helm repo update
 
 
 > Install the Datadog values.yaml
-helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey= --set targetSystem=linux -n
+helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey= --set targetSystem=linux -n datadog
 
 
 > Get Datadog pods
@@ -88,7 +88,7 @@ kubectl get pods -n datadog | cut -f1 -d" " | grep -v "NAME" | grep "datadog-clu
 
 
 > Get the Datadog cluster agent status
-kubectl exec -it <datadog-cluster-agent pod> datadog-cluster-agent status -n
+kubectl exec -it <datadog-cluster-agent pod> datadog-cluster-agent status -n datadog
 
 
 > To send files to support, open a case first and get the <CASE_ID> (numeric value), run a flare collection
@@ -96,7 +96,7 @@ kubectl exec <datadog-cluster-agent pod> -it datadog-cluster-agent flare <CASE_I
 
 
 > To reset, clean up everything for the Datadog namespace (please validate that the following will not damage your configs, cluster, system)
-kubectl delete replicasets,subscriptions,deployments,jobs,services,pods --all -n
+kubectl delete replicasets,subscriptions,deployments,jobs,services,pods --all -n datadog
 
 
 > Identify the daemonsets that respawn Pods
@@ -104,4 +104,4 @@ kubectl describe pod <pod name> -n  | grep 'Controlled By:'
 
 
 > Delete (at your discretion) the daemonset deployment versions
-kubectl delete daemonset <kubectl delete daemonset datadog-version -n datadog> -n
+kubectl delete daemonset <kubectl delete daemonset datadog-version -n datadog> -n datadog

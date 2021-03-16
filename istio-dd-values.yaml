@@ -1,3 +1,4 @@
+targetSystem: linux
 datadog:
   clusterName: cluster-1
   apiKey: <DD-API-KEY>

@@ -7,7 +7,7 @@ declare -A arr
 
 # Declare commands to execute and collect information from the cluster
 # Syntax: ["<key-name>"]="basic command"
-arr+=( ["Kernel"]="uname -r" ["Kubectl"]="kubectl version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""kubectl get namespaces --show-labels""" ["Network-Policies"]="""kubectl get networkpolicies --all-namespaces""" )
+arr+=( ["Kernel"]="uname -r" ["Kubectl"]="kubectl version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""kubectl get namespaces --show-labels""" ["Network-Policies"]="""kubectl get networkpolicies --all-namespaces""" ["Get-Deployments"]="""kubectl get deployments""" ["Get-DD-Deployment"]="""kubectl get deployments -n datadog""")
 
 for key in ${!arr[@]}; do
     echo  "======================================"

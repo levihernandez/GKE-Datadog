@@ -4,11 +4,11 @@
 nsp=${1}
 apikey=${2}
 declare -A arr
+kb="kubectl"
 
 # Declare commands to execute and collect information from the cluster
 # Syntax: ["<key-name>"]="basic command"
-arr+=( ["Kernel"]="uname -r" ["Kubectl"]="kubectl version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""kubectl get namespaces --show-labels""" ["Network-Policies"]="""kubectl get networkpolicies --all-namespaces""" ["Get-Deployments"]="""kubectl get deployments""" ["Get-DD-Deployment"]="""kubectl get deployments -n datadog""")
-
+arr+=( ["Kernel"]="uname -r" ["${kb}"]="${kb} version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""${kb} get namespaces --show-labels""" ["Network-Policies"]="""${kb} get networkpolicies --all-namespaces""" ["Get-Deployments"]="""${kb} get deployments""" ["Get-DD-Deployment"]="""${kb} get deployments -n ${nsp}""")
 for key in ${!arr[@]}; do
     echo  "======================================"
     echo  "GET ${key} info: '${arr[${key}]}'"

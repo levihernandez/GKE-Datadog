@@ -45,7 +45,7 @@ you understand their functionality:
 declare -A arr3
 arr3=$(kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep "datadog-cluster-agent")
 
-if (( ${#arr3[@]} )); then
+if [[ ${arr3} ]]; then
     echo "> Cluster Agent exists: "
     for i in ${arr3[@]}; do
         echo "    ${i}"
@@ -69,7 +69,7 @@ echo """
 declare -A arr4
 arr4=$(kubectl get deployments -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep "datadog")
 
-if (( ${#arr4[@]} )); then
+if [[ ${arr4} ]]; then
     echo "> Deployment(s) found: "
     for i in ${arr4[@]}; do
         echo "    ${i}"

@@ -1,8 +1,7 @@
-targetSystem: linux
 datadog:
-  clusterName: cluster-1
-  apiKey: <DD-API-KEY>
-  # apiKeyExistingSecret: datadog-keys
+  clusterName: my-cluster-1
+  #apiKeyExistingSecret: datadog-keys
+  apiKey: <datadog-api-key>
   securityAgent:
     compliance:
       enabled: true
@@ -11,20 +10,21 @@ datadog:
       enabled: true
       syscallMonitor:
         enabled: true
+  expvar_port: 5001
   apm:
     enabled: true
     port: 8126  
     useSocketVolume: false 
     socketPath: /var/run/datadog/apm.socket 
-    hostSocketPath: /var/run/datadog/     
+    hostSocketPath: /var/run/datadog/   
   logs:
     enabled: true
     containerCollectAll: true
   processAgent:
     processCollection: true
   systemProbe:
-    enableOOMKill: true
-    enableTCPQueueLength: true
+    enableOOMKill: false
+    enableTCPQueueLength: false
     collectDNSStats: true
   networkMonitoring:
     enabled: true
@@ -32,21 +32,14 @@ datadog:
     useHostPort: true
     port: 8125 
     originDetection: false
+
   env:
     - name: DD_ENV
       value: "lab"
   podSecurity:
     apparmor:
       enabled: false
-  confd:
-    istio.yaml: |-
-      ad_identifiers:
-        - proxyv2
-      init_config:
-      instances:
-        - istio_mesh_endpoint: http://%%host%%:15090/stats/prometheus
-          send_histograms_buckets: true
-          send_monotonic_counter: true
+
 agents:
   tolerations:
     - operator: Exists
@@ -58,6 +51,15 @@ agents:
   volumes:
     - name: empty-dir
       emptyDir: {}
+  confd:
+    istio.yaml: |-
+      ad_identifiers:
+        - proxyv2
+      init_config:
+      instances:
+        - istio_mesh_endpoint: http://%%host%%:15090/stats/prometheus
+          send_histograms_buckets: true
+          send_monotonic_counter: true
 clusterAgent:
   admissionController:
     enabled: true
@@ -68,23 +70,13 @@ clusterAgent:
   podAnnotations:
     sidecar.istio.io/inject: "false"
   confd:
-    kube_apiserver_metrics.yaml: |-
-      cluster_check: true
-      init_config:
-      instances:
-        - prometheus_url: https://kubernetes.default/metrics
-          ssl_ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          bearer_token_auth: true
-    etcd.yaml: |-
-      cluster_check: true
-      init_config:
-      instances:
-        - prometheus_url: https://kubernetes.default/metrics
-          use_preview: true
-          ssl_ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          bearer_token_auth: true
     istio.yaml: |-
-      cluster_check: true
+      ad_identifiers:
+        - proxyv2
       init_config:
       instances:
-         - istiod_endpoint: http://istio-pilot.istio-system:8080/metrics
+        - istio_mesh_endpoint: http://%%host%%:15090/stats/prometheus
+          send_histograms_buckets: true
+          send_monotonic_counter: true
+
+

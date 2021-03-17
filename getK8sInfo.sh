@@ -67,12 +67,24 @@ kubectl exec <datadog-cluster-agent pod> -it datadog-cluster-agent flare <CASE_I
 > To reset, clean up everything for the Datadog namespace (please validate that the following will not damage your configs, cluster, system)
 kubectl delete replicasets,subscriptions,deployments,jobs,services,pods --all -n ${nsp}
 
+"""
 
-> Identify the daemonsets that respawn Pods
-kubectl describe pod <pod name> -n ${nsp} | grep 'Controlled By:'
+declare arr2
+arr2=$(${kb} get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true)
+
+echo "> Identify the daemonsets that respawn Pods"
+if [[ ${arr2} ]]; then
+    for i in ${arr2[@]}; do
+        echo "kubectl describe pod ${i} -n ${nsp} | grep 'Controlled By:'"
+    done
+
+else
+    echo "kubectl describe pod <pod name> -n ${nsp} | grep 'Controlled By:'"
+fi
 
 
+echo """
 > Delete (at your discretion) the daemonset deployment versions
-kubectl delete daemonset <kubectl delete daemonset datadog-version -n ${nsp}
+kubectl delete daemonset <kubectl delete daemonset datadog-version -n datadog> -n ${nsp}
 """
 

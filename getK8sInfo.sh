@@ -74,11 +74,11 @@ echo """
 
 
 > To send files to support, open a case first and get the <CASE_ID> (numeric value), run a flare collection
-kubectl exec <datadog-cluster-agent pod> -it datadog-cluster-agent flare <CASE_ID>
+    kubectl exec <datadog-cluster-agent pod> -it datadog-cluster-agent flare <CASE_ID>
 
 
 > To reset, clean up everything for the Datadog namespace (please validate that the following will not damage your configs, cluster, system)
-kubectl delete replicasets,subscriptions,deployments,jobs,services,pods --all -n ${nsp}
+    kubectl delete replicasets,subscriptions,deployments,jobs,services,pods --all -n ${nsp}
 
 """
 

@@ -8,7 +8,11 @@ kb="kubectl"
 
 # Declare commands to execute and collect information from the cluster
 # Syntax: ["<key-name>"]="basic command"
-arr+=( ["Kernel"]="uname -r" ["${kb}"]="${kb} version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""${kb} get namespaces --show-labels""" ["Network-Policies"]="""${kb} get networkpolicies --all-namespaces""" ["Get-Deployments"]="""${kb} get deployments""" ["Get-DD-Deployment"]="""${kb} get deployments -n ${nsp}""" ["Get-DD-Pod-Info"]="""${kb} get pods -n ${nsp} -o custom-columns=NAME:metadata.name,HOST_IP:status.hostIP,POD_IP:status.podIP,PHASE:status.phase""" ["Helm-Charts-Versions"]="""helm list -n ${nsp}""" )
+arr+=( ["Kernel"]="uname -r" ["${kb}"]="${kb} version" ["Helm"]="helm version" ["Istio"]="istioctl version" 
+["OS"]="cat /etc/os-release" ["Istio-Injections"]="""${kb} get namespaces --show-labels""" 
+["Network-Policies"]="""${kb} get networkpolicies --all-namespaces""" ["Get-Deployments"]="""${kb} get deployments""" 
+["Get-DD-Deployment"]="""${kb} get deployments -n ${nsp}""" ["Get-DD-Pod-Info"]="""${kb} get pods -n ${nsp} -o custom-columns=NAME:metadata.name,HOST_IP:status.hostIP,POD_IP:status.podIP,PHASE:status.phase""" 
+["Helm-Charts-Versions"]="""helm list -n ${nsp}""" ["Istio-Proxy-Status"]="""istioctl proxy-status""" )
 for key in ${!arr[@]}; do
     echo  "======================================"
     echo  "GET ${key} info: '${arr[${key}]}'"

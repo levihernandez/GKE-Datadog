@@ -78,7 +78,6 @@ if [[ ${arr4} ]]; then
     echo "> Selecting the latest Datadog deployment"
     dddplym=${i}
     echo "    ${dddplym}"
-    kubectl get deployment ${dddplym} -n ${nsp}
 else
     dddplym="<datadog-cluster-agent pod>"
 fi
@@ -89,6 +88,12 @@ echo """
 
 > Install the Datadog values.yaml
     helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey=${2} --set targetSystem=linux -n ${nsp}
+
+> Install the Manifest app_daemonset.yaml
+    kubectl apply -f sample-node-app.yaml
+
+> Verify status of app Rollout 
+    kubectl rollout status deployment/nodejs
 
 > Get Deployments in Datadog namespace
     kubectl get deployments -n ${nsp}
@@ -133,12 +138,12 @@ echo """
     helm list -n ${nsp}
 
 > Uninstall helm deployment
-    """
+"""
 
 declare arr5
-arr2=$(helm list -n datadog | grep -v "NAME" | awk '{print $1}'}
+arr5=$(helm list -n datadog | grep -v "NAME" | awk '{print $1}')
 if [[ ${arr5} ]]; then
-    for i in ${arr2[@]}; do
+    for i in ${arr5[@]}; do
         echo "    helm uninstall ${i} -n ${nsp}"
     done
 

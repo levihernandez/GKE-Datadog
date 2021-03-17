@@ -42,18 +42,50 @@ you understand their functionality:
 
 """
 
-ddclagent=$(kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep \"datadog-cluster-agent\")
-if [[ ${ddclagent} ]]; then
-    echo """> Cluster Agent exists:     
-    ${ddclagent}"""
+declare -A arr3
+arr3=$(kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep "datadog-cluster-agent")
+
+if (( ${#arr3[@]} )); then
+    echo "> Cluster Agent exists: "
+    for i in ${arr3[@]}; do
+        echo "    ${i}"
+    done
+    echo " "
+    echo "> Selecting the latest Datadog deployment"
+    ddclagent=${i}
+    echo "    ${ddclagent}"
 else
     ddclagent="<datadog-cluster-agent pod>"
-    echo """> Get the Datadog cluster agent pod
-    kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep \"datadog-cluster-agent\""""
-
 fi
 
 echo """
+> Get the Datadog cluster agent pod
+    kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep \"datadog-cluster-agent\"
+    
+> Get deployments
+    kubectl get deployments -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep \"datadog\"
+"""
+
+declare -A arr4
+arr4=$(kubectl get deployments -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep "datadog")
+
+if (( ${#arr4[@]} )); then
+    echo "> Deployment(s) found: "
+    for i in ${arr4[@]}; do
+        echo "    ${i}"
+    done
+    echo " "
+    echo "> Selecting the latest Datadog deployment"
+    dddplym=${i}
+    echo "    ${dddplym}"
+    kubectl get deployment ${dddplym} -n ${nsp}
+else
+    dddplym="<datadog-cluster-agent pod>"
+fi
+
+echo """
+> Get deployment
+    kubectl get deployment ${dddplym}  -n datadog -o custom-columns=NAME:metadata.name --no-headers=true
 
 > Install the Datadog values.yaml
     helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey=${2} --set targetSystem=linux -n ${nsp}
@@ -70,11 +102,11 @@ echo """
 
 
 > Get the Datadog cluster agent status
-    kubectl exec -it <datadog-cluster-agent pod> datadog-cluster-agent status -n ${nsp}
+    kubectl exec -it ${ddclagent} datadog-cluster-agent status -n ${nsp}
 
 
 > To send files to support, open a case first and get the <CASE_ID> (numeric value), run a flare collection
-    kubectl exec <datadog-cluster-agent pod> -it datadog-cluster-agent flare <CASE_ID>
+    kubectl exec ${ddclagent} -it datadog-cluster-agent flare <CASE_ID>
 
 
 > To reset, clean up everything for the Datadog namespace (please validate that the following will not damage your configs, cluster, system)
@@ -98,6 +130,6 @@ fi
 
 echo """
 > Delete (at your discretion) the daemonset deployment versions
-    kubectl delete daemonset <kubectl delete daemonset datadog-version -n datadog> -n ${nsp}
+    kubectl delete daemonset datadog-version -n ${nsp}
 """
 

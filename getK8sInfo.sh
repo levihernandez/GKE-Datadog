@@ -33,31 +33,44 @@ you understand their functionality:
 ------------------------------------------------------------------
 
 > Create Datadog namespace:
-kubectl create namespace ${nsp}
+    kubectl create namespace ${nsp}
 
 
 > Get the Datadog Helm Repo
-helm repo add datadog https://helm.datadoghq.com
-helm repo update
+    helm repo add datadog https://helm.datadoghq.com
+    helm repo update
 
+"""
 
+ddclagent=$(kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep \"datadog-cluster-agent\")
+if [[ ${ddclagent} ]]; then
+    echo """> Cluster Agent exists:     
+    ${ddclagent}"""
+else
+    ddclagent="<datadog-cluster-agent pod>"
+    echo """> Get the Datadog cluster agent pod
+    kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep \"datadog-cluster-agent\""""
+
+fi
+
+echo """
 
 > Install the Datadog values.yaml
-helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey=${2} --set targetSystem=linux -n ${nsp}
+    helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey=${2} --set targetSystem=linux -n ${nsp}
 
 > Get Deployments in Datadog namespace
-kubectl get deployments -n ${nsp}
+    kubectl get deployments -n ${nsp}
 
 > Get Datadog pods
-kubectl get pods -n ${nsp} | cut -f1 -d\" \" | grep -v \"NAME\"
+    kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true
 
 
-> Get the Datadog cluster agent pod
-kubectl get pods -n ${nsp} | cut -f1 -d\" \" | grep -v \"NAME\" | grep \"datadog-cluster-agent\"
+> Get the *datadog-cluster-agent* pod name
+    kubectl get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-headers=true | grep \"datadog-cluster-agent\"
 
 
 > Get the Datadog cluster agent status
-kubectl exec -it <datadog-cluster-agent pod> datadog-cluster-agent status -n ${nsp}
+    kubectl exec -it <datadog-cluster-agent pod> datadog-cluster-agent status -n ${nsp}
 
 
 > To send files to support, open a case first and get the <CASE_ID> (numeric value), run a flare collection
@@ -75,16 +88,16 @@ arr2=$(${kb} get pods -n ${nsp} -o custom-columns=NAME:metadata.name --no-header
 echo "> Identify the daemonsets that respawn Pods"
 if [[ ${arr2} ]]; then
     for i in ${arr2[@]}; do
-        echo "kubectl describe pod ${i} -n ${nsp} | grep 'Controlled By:'"
+        echo "    kubectl describe pod ${i} -n ${nsp} | grep 'Controlled By:'"
     done
 
 else
-    echo "kubectl describe pod <pod name> -n ${nsp} | grep 'Controlled By:'"
+    echo "    kubectl describe pod <pod name> -n ${nsp} | grep 'Controlled By:'"
 fi
 
 
 echo """
 > Delete (at your discretion) the daemonset deployment versions
-kubectl delete daemonset <kubectl delete daemonset datadog-version -n datadog> -n ${nsp}
+    kubectl delete daemonset <kubectl delete daemonset datadog-version -n datadog> -n ${nsp}
 """
 

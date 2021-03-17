@@ -129,6 +129,10 @@ fi
 
 
 echo """
+> Clean up all datadog resources from a Deployment created by Helm
+    helm list -n ${nsp}
+    helm uninstall <NAME> -n ${nsp}
+
 > Delete (at your discretion) the daemonset deployment versions
     kubectl delete daemonset datadog-version -n ${nsp}
 """

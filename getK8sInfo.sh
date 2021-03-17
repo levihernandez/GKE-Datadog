@@ -8,7 +8,7 @@ kb="kubectl"
 
 # Declare commands to execute and collect information from the cluster
 # Syntax: ["<key-name>"]="basic command"
-arr+=( ["Kernel"]="uname -r" ["${kb}"]="${kb} version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""${kb} get namespaces --show-labels""" ["Network-Policies"]="""${kb} get networkpolicies --all-namespaces""" ["Get-Deployments"]="""${kb} get deployments""" ["Get-DD-Deployment"]="""${kb} get deployments -n ${nsp}""" ["Get-DD-Pod-Info"]="""${kb} get pods -n ${nsp} -o custom-columns=NAME:metadata.name,HOST_IP:status.hostIP,POD_IP:status.podIP,PHASE:status.phase""")
+arr+=( ["Kernel"]="uname -r" ["${kb}"]="${kb} version" ["Helm"]="helm version" ["Istio"]="istioctl version" ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""${kb} get namespaces --show-labels""" ["Network-Policies"]="""${kb} get networkpolicies --all-namespaces""" ["Get-Deployments"]="""${kb} get deployments""" ["Get-DD-Deployment"]="""${kb} get deployments -n ${nsp}""" ["Get-DD-Pod-Info"]="""${kb} get pods -n ${nsp} -o custom-columns=NAME:metadata.name,HOST_IP:status.hostIP,POD_IP:status.podIP,PHASE:status.phase""" ["Helm-Charts-Versions"]="""helm list -n ${nsp}""" )
 for key in ${!arr[@]}; do
     echo  "======================================"
     echo  "GET ${key} info: '${arr[${key}]}'"
@@ -131,7 +131,22 @@ fi
 echo """
 > Clean up all datadog resources from a Deployment created by Helm
     helm list -n ${nsp}
-    helm uninstall <NAME> -n ${nsp}
+
+> Uninstall helm deployment
+    """
+
+declare arr5
+arr2=$(helm list -n datadog | grep -v "NAME" | awk '{print $1}'}
+if [[ ${arr5} ]]; then
+    for i in ${arr2[@]}; do
+        echo "    helm uninstall ${i} -n ${nsp}"
+    done
+
+else
+    echo "    helm uninstall <NAME> -n ${nsp}"
+fi
+
+echo """
 
 > Delete (at your discretion) the daemonset deployment versions
     kubectl delete daemonset datadog-version -n ${nsp}

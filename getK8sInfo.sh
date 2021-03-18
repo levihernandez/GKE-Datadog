@@ -11,7 +11,8 @@ kb="kubectl"
 arr+=( ["Kernel"]="uname -r" ["${kb}"]="${kb} version" ["Helm"]="helm version" ["Istio"]="istioctl version" 
 ["OS"]="cat /etc/os-release" ["Istio-Injections"]="""${kb} get namespaces --show-labels""" 
 ["Network-Policies"]="""${kb} get networkpolicies --all-namespaces""" ["Get-Deployments"]="""${kb} get deployments""" 
-["Get-DD-Deployment"]="""${kb} get deployments -n ${nsp}""" ["Get-DD-Pod-Info"]="""${kb} get pods -n ${nsp} -o custom-columns=NAME:metadata.name,HOST_IP:status.hostIP,POD_IP:status.podIP,PHASE:status.phase""" 
+["Get-DD-Deployment"]="""${kb} get deployments -n ${nsp}""" 
+["Get-DD-Pod-Info"]="""${kb} get pods -n ${nsp} -o custom-columns=NAME:metadata.name,HOST_IP:status.hostIP,POD_IP:status.podIP,PHASE:status.phase""" 
 ["Helm-Charts-Versions"]="""helm list -n ${nsp}""" ["Istio-Proxy-Status"]="""istioctl proxy-status""" )
 for key in ${!arr[@]}; do
     echo  "======================================"
@@ -86,12 +87,31 @@ else
     dddplym="<datadog-cluster-agent pod>"
 fi
 
+declare arr5
+arr5=$(helm list -n datadog | grep -v "NAME" | awk '{print $1}')
+if [[ ${arr5} ]]; then
+    for i in ${arr5[@]}; do
+        hemlrls=${i}
+    done
+
+else
+    hemlrls="<NAME>"
+fi
+
 echo """
 > Get deployment
     kubectl get deployment ${dddplym}  -n datadog -o custom-columns=NAME:metadata.name --no-headers=true
 
-> Install the Datadog values.yaml
-    helm install <deployment-version> -f values.yaml  datadog/datadog --set datadog.apiKey=${2} --set targetSystem=linux -n ${nsp}
+> Install the Datadog values.yaml and create the <helm-release-name> in the same statement
+    helm install <helm-release-name> -f values.yaml  datadog/datadog --set datadog.apiKey=${2} --set targetSystem=linux -n ${nsp} --set version=1.0.0
+
+    
+
+> Update changes to Datadog values.yaml
+    helm upgrade --cleanup-on-fail <helm-release-name> datadog/datadog --version=<chart-version> -f values.yaml -n ${nsp} --version=1.1.0
+
+    helm install dd1 -f values.yaml  datadog/datadog --set datadog.apiKey=1232 --set targetSystem=linux -n datadog 
+    helm upgrade --cleanup-on-fail dd1 datadog/datadog -f values.yaml -n datadog 
 
 > Install the Manifest app_daemonset.yaml
     kubectl apply -f sample-node-app.yaml
@@ -142,20 +162,7 @@ echo """
     helm list -n ${nsp}
 
 > Uninstall helm deployment
-"""
-
-declare arr5
-arr5=$(helm list -n datadog | grep -v "NAME" | awk '{print $1}')
-if [[ ${arr5} ]]; then
-    for i in ${arr5[@]}; do
-        echo "    helm uninstall ${i} -n ${nsp}"
-    done
-
-else
-    echo "    helm uninstall <NAME> -n ${nsp}"
-fi
-
-echo """
+    helm uninstall ${hemlrls} -n ${nsp}
 
 > Delete (at your discretion) the daemonset deployment versions
     kubectl delete daemonset datadog-version -n ${nsp}

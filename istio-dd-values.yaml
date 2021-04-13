@@ -62,8 +62,8 @@ agents:
           send_monotonic_counter: true
 clusterAgent:
   admissionController:
-    enabled: true
-    mutateUnlabelled: true
+    enabled: false
+    mutateUnlabelled: false
   env:
     - name: DD_ENV
       value: "lab"
